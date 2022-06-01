@@ -1,0 +1,9 @@
+option batch on
+option confirm off
+option transfer binary
+open ftp://moo.jp-mikipulley:M1k1pulley@ftp.lolipop.jp:21
+cd oversea
+lcd  %~dp0
+mput *.csv
+close
+exit

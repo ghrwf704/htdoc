@@ -1,0 +1,3 @@
+id = GETID("アップロードするファイルの選択", "#32770", -1)
+SLEEP(1)
+CLKITEM(id, "開く", CLK_ACC, True, 5)

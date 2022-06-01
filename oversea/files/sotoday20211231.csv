@@ -1,0 +1,3 @@
+Code,Group,Date,Invoice Date,ETD,ANA-4,Customer Code,Customer Group4(Industry Code)(Sub-Ledger),Item Code,Item Name,Qty,Currency,Price.,Exchange Rate,Amount (Transaction) (HKD),Cost(HKD),Group 5(Item),ANA-2,Location,Spec. Customer (Transaction),Industry Code (Transaction),
+MPHK,1,20211231,,20220110,OUT,HIMALAYA-C,8000,110545100,SPIDER-L-090/095,4,USD,2.5000 ,7.7530000 ,77.53 ,,2201,MPTJ,OUT,,,
+MPHK,1,20211231,,20220110,OUT,HIMALAYA-C,8000,123002900,SFC-080DA2-30B-32B,3,USD,73.1000 ,7.7530000 ,"1,700.23 ",,2301,MPTJ,OUT,,,

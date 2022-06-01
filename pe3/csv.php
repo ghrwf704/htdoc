@@ -1,0 +1,54 @@
+<?php 
+	require_once("./function.php");
+	header('Content-type: text/html; charset=utf-8');
+	mb_internal_encoding('UTF-8');
+	exec("rm ./csv/kousu_eigyo.csv");
+	$dbh=DB_CONNE();
+$sql=<<<EOF
+select 
+`工数`.t as `登録日付`,
+`T-M営業社員`.`部署名`,
+`T-M営業社員`.`名前`,
+`地域分類`,
+`インプット分類`,
+`機能分類`,
+`活動分類`,
+`目的分類`,
+`製品区分`,
+`顧客名`,
+`製品中分類`,
+`分` as `作業時間`,
+`T-M営業社員`.`部署コード`,
+`T-M営業社員`.`企業コード`,
+`協力会社名`,
+`関連会社名`,
+`id`,
+`No`  
+from `工数` inner join `T-M営業社員` on `工数`.`id` = `T-M営業社員`.`ログインID`
+EOF;
+	$stmt = $dbh->query($sql);
+	writefile("部署名,記入者,登録日付,部署名名称,記入者名称,地域分類,インプット分類,目的分類,機能分類,活動分類,製品区分,製品中分類,作業時間,協力会社名,関連会社名,顧客名,No\n");
+    	while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+		try{
+			$d=get8($row['登録日付']);
+			writefile( $row['企業コード'].":".$row['部署コード'].",".$row['企業コード'].":".$row['部署コード'].":".$row['id'].",".$d.",".$row['部署名'].",".$row['名前'].",".$row['地域分類'].",".$row['インプット分類'].",".$row['目的分類'].",".$row['機能分類'].",".$row['活動分類'].",".$row['製品区分'].",".$row['製品中分類'].",".$row['作業時間'].",".$row['協力会社名'].",".$row['関連会社名'].",".$row['顧客名'].",".$row['No']."\n");
+		} catch ( Exception $ex ) {
+			break;
+		}
+	}
+	$dbh=null;
+
+function writefile($str){
+	$str=mb_convert_encoding($str,"sjis","auto");
+	file_put_contents("./csv/kousu_eigyo.csv", $str,FILE_APPEND);
+}
+function get8($str){
+	$f="";
+	for($i=0;$i<strlen($str);$i++){
+		if(is_numeric(substr($str,$i,1))){
+			if(8==strlen($f)){return $f;}
+			$f=$f.substr($str,$i,1);
+		}
+	}
+}
+?>

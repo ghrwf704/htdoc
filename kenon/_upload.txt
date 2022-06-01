@@ -1,0 +1,92 @@
+<?php 
+	require_once("../function.php");
+	exec("rm ./err_ids.csv");
+?>
+<html>
+<head>
+<?php 
+	$dbh=DB_CONNE();
+	$sql="select `id`,`T-M営業社員`.`部署名`,`T-M営業社員`.`名前` from `T-Mパスワード` inner join `T-M営業社員` on `T-Mパスワード`.`id` = `T-M営業社員`.`ログインID`  where 1";
+	$stmt = $dbh->query($sql);
+	$ida=array();
+	$mailaddress=array();
+	$name=array();
+   	while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+		try{
+			$ida[]=$row['id'];
+			$name[]=$row['名前'];
+		} catch ( Exception $ex ) {
+			break;
+		}
+	}
+	$dbh=null;
+
+function writefile($str){
+	file_put_contents("./err_ids.csv", $str,FILE_APPEND);
+}
+function get8($str){
+	$f="";
+	for($i=0;$i<strlen($str);$i++){
+		if(is_numeric(substr($str,$i,1))){
+			if(8==strlen($f)){return $f;}
+			$f=$f.substr($str,$i,1);
+		}
+	}
+}
+?>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>メール通知画面</title>
+</head>
+<body>
+<p>
+<?php
+$days=array(date('Ymd', strtotime('-1 day')),date('Ymd', strtotime('-2 day')),date('Ymd', strtotime('-3 day')),date('Ymd', strtotime('-4 day')),date('Ymd', strtotime('-5 day')),date('Ymd', strtotime('-6 day')));
+if (is_uploaded_file($_FILES["upfile"]["tmp_name"])) {
+	if (move_uploaded_file($_FILES["upfile"]["tmp_name"], "files/" . $_FILES["upfile"]["name"])) {
+	    chmod("files/" . $_FILES["upfile"]["name"], 0644);
+		$file = "files/" . $_FILES["upfile"]["name"];
+		$lines = file_get_contents($file);
+	}else {
+		echo "ファイルをアップロードできません。";
+	}
+} else {
+  echo "ファイルが選択されていません。";
+}
+echo '<a href="https://moo-mikipulley.ssl-lolipop.jp/kenon/err_ids.csv">csvをDL</a>';
+echo "<p>Windows版の Microsoft Excel でCSVファイルを開いた際に文字化けしている場合、以下の方法で解消できる可能性があります。 </p>";
+echo "<p>1. CSVファイルを右クリックし、「プログラムから開く」→「メモ帳」を選択します。</p>";
+echo "<p>2. メモ帳で開いた際に文字化けしていない事を確認し、「ファイル」→「名前をつけて保存」を選択し、表示されたダイアログボックス上の「文字コード」を「ANSI」に変更の上、保存します。</p>";
+echo "<p>3. Excel でCSVファイルを開き、文字化けが解消されていることを確認します。</p>";
+writefile("直近の未投入日,社員ID,社員名".PHP_EOL);
+$subject = $lines;
+for ($i=0;$i<count($ida);$i++) {
+	for ($ii=0;$ii<count($days);$ii++) {
+		$pattern = "$days[$ii].+$ida[$i]";
+		if ( preg_match("/".$pattern."/", $subject ) ) {
+
+		}else{
+			writefile($days[$ii].",".$ida[$i].",".$name[$i].PHP_EOL);
+			$dbh=DB_CONNE();
+			$sql="select `mailaddress` from `メールアドレス` where `id`='$ida[$i]'";
+			$stmt = $dbh->query($sql);
+		   	while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+				try{
+					writefile($days[$ii].",".$ida[$i].",".$name[$i].PHP_EOL);
+					$to = $row['mailaddress'];
+					$subject = "【検温システム】検温結果を登録してください";
+					$message = "$name[$i]さん、直近の一週間の検温結果を確認し、検温結果を登録してください。";
+					$headers = "From: 三木プーリ株式会社　システム課";
+					//mb_send_mail($to, $subject, $message, $headers); 
+					break;
+				} catch ( Exception $ex ) {
+					break;
+				}
+			}
+			$dbh=null;
+			break;
+		}
+	}
+}
+?></p>
+</body>
+</html>

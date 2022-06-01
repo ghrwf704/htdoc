@@ -1,0 +1,78 @@
+//ブラウザを自動化しての「自動アップロードシステム」
+//CSVファイル名と区分は以下の通り
+//Order Sheets Statement(By Customer Type).csv 区分１
+//The Undelivered Order (By Customer)-N.csv 区分２
+//SALES Report.csv 区分３
+//処理完了後にCSVファイルは削除します。
+dim kubun[3]
+dim arr[3]
+kubun[0]=0
+kubun[1]=1
+kubun[2]=2
+arr[0]=get_cur_dir+"\Order Sheets Statement(By Customer Type).csv"
+arr[1]=get_cur_dir+"\The Undelivered Order (By Customer)-N.csv"
+arr[2]=get_cur_dir+"\SALES Report.csv"
+
+//予め終了しておく
+doscmd("taskkill /F /IM msedge.exe",1)
+doscmd("taskkill /F /IM cmd.exe",1)
+sleep(1)
+//edge起動
+DOSCMD("start microsoft-edge:https://moo-mikipulley.ssl-lolipop.jp/oversea/login.php",1)
+while true
+	id = GETID("海外日次売上・受注・注残取込システム - ログイン")
+	if id<>-1 then break
+wend
+表示完了待ち(id,"ログイン")
+CLKITEM(id, "ログイン", CLK_BTN)
+sendstr(0,"mptw")            // 検索文字
+sleep(0.5)
+sckey(id,vk_ctrl,vk_v)
+sleep(0.5)
+sendstr(0,"mptw1051")            // 検索文字
+sckey(id,vk_tab)
+sleep(0.5)
+sckey(id,vk_ctrl,v)
+sleep(0.5)
+SCKEY(id, VK_RETURN)
+for i=0 to 2
+	表示完了待ち(id,"upload")
+	csvup(id,kubun[i],arr[i])
+next
+doscmd("taskkill /F /IM msedge.exe",1)
+doscmd("taskkill /F /IM cmd.exe",1)
+
+procedure csvup(id,区分,name)
+	fid=fopen(name,f_read or f_write)
+	fclose(fid)
+	sendstr(0,name)
+	CLKITEM(id, "Logout", CLK_BTN,0)
+	kbd(vk_tab,down,40)
+	kbd(vk_tab,up,0)
+	for j=1 to 区分
+		kbd(vk_down,down,40)
+		kbd(vk_down,up,0)
+	next
+	CLKITEM(id, "ファイルの選択", CLK_BTN)
+	sleep(5)
+	kbd(vk_ctrl,down,40)
+	kbd(vk_v)
+	kbd(vk_ctrl,up,100)
+	sleep(1)
+ 	kbd(vk_return,click,100)
+	表示完了待ち(id,"upload")
+	CLKITEM(id, "upload", CLK_BTN)
+	表示完了待ち(id,"Back")
+	CLKITEM(id, "Back", CLK_BTN)
+	DELETEFILE(name)
+fend
+
+
+Procedure 表示完了待ち(id, item)
+	While True
+		Sleep(0.4)
+		for n = 0 to GETITEM(id,ITM_BTN)-1
+			if ALL_ITEM_LIST[n] = item then Exit
+		next
+	wend
+Fend

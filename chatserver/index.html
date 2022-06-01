@@ -1,0 +1,27 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="./style.css" type="text/css">
+    <script type="text/javascript" src="tiny_segmenter.js" charset="UTF-8"></script>
+    <title>エコーボット</title>
+</head>
+<body>
+<h1>チャットボット</h1>
+<!--画面-->
+<div id= "field">
+    <ul id= "chat-ul"></ul>
+</div>
+
+<!--入力場所，送信ボタン-->
+<div id= "input-field">
+    <input type= "text" id= "chat-input" value="">
+    <input type= "button" value= "送信" id= "chat-button" onclick= "btnFunc()">
+</div>
+	</body>
+    <script src="chat.js"></script>
+    <script type="text/javascript">
+    // 上記の入力欄にフォーカスを与える
+        document.getElementById('chat-input').focus();
+    </script>
+</html>
